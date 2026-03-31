@@ -1,0 +1,58 @@
+# Newsletter configuration
+# Agents read this file to understand the newsletter's identity, audience, and style.
+
+name: "The Weekly Digest"
+tagline: "What matters in AI & developer tooling — curated weekly"
+
+topic: "AI & Developer Tools"
+topic_keywords:
+  - AI
+  - LLM
+  - developer tools
+  - open source
+  - programming
+  - infrastructure
+  - startups
+  - research
+
+audience: "Software engineers and technical founders"
+audience_description: |
+  Readers are working developers and technical founders. They're opinionated,
+  time-constrained, and allergic to hype. They want accurate, substantive content
+  with clear "why it matters" context — not press release summaries.
+
+tone: "Informative, direct, and slightly opinionated — no hype, no fluff"
+tone_guidelines: |
+  - Write in active voice
+  - Prefer concrete examples over abstractions
+  - Don't use words like "revolutionary", "game-changing", or "disruptive"
+  - It's okay to express a clear point of view on a topic
+  - Assume readers can handle technical depth
+  - Keep sentences short and punchy in the quick-links section
+  - Longer, more analytical prose is fine in deep dives
+
+word_count_target:
+  min: 1000
+  max: 2500
+
+sections:
+  - id: top-stories
+    label: "Top Stories"
+    description: "High-impact news and developments this week"
+    article_count: 2
+    max_article_count: 3
+  - id: deep-dives
+    label: "Deep Dive"
+    description: "One topic analyzed in depth"
+    article_count: 1
+    optional: true
+  - id: tools-and-launches
+    label: "Tools & Launches"
+    description: "New tools, products, and releases worth knowing about"
+    article_count: 3
+    max_article_count: 6
+  - id: quick-links
+    label: "Quick Links"
+    description: "Interesting reads that didn't make the cut above"
+    article_count: 5
+    max_article_count: 10

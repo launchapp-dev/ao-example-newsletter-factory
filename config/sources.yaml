@@ -1,0 +1,63 @@
+# RSS and web sources for content curation
+# Each source is fetched by the fetch-sources command phase.
+# Agents use the name and priority fields when scoring articles.
+
+sources:
+  # High priority — primary feed sources
+  - name: "Hacker News Best"
+    url: "https://hnrss.org/best"
+    type: rss
+    priority: high
+    description: "Top-ranked Hacker News stories"
+
+  - name: "Hacker News Show HN"
+    url: "https://hnrss.org/show"
+    type: rss
+    priority: high
+    description: "Show HN posts — tools and projects"
+
+  # Medium priority — vertical-specific feeds
+  - name: "TechCrunch AI"
+    url: "https://techcrunch.com/category/artificial-intelligence/feed/"
+    type: rss
+    priority: medium
+    description: "TechCrunch AI news"
+
+  - name: "The Verge"
+    url: "https://www.theverge.com/rss/index.xml"
+    type: rss
+    priority: medium
+    description: "Tech news from The Verge"
+
+  - name: "MIT Technology Review"
+    url: "https://www.technologyreview.com/feed/"
+    type: rss
+    priority: medium
+    description: "Deep tech coverage from MIT Tech Review"
+
+  # Low priority — supplementary sources
+  - name: "Lobsters"
+    url: "https://lobste.rs/rss"
+    type: rss
+    priority: low
+    description: "Technical link aggregator"
+
+  - name: "Dev.to"
+    url: "https://dev.to/feed"
+    type: rss
+    priority: low
+    description: "Developer community articles"
+
+# Backup sources — used if content-review returns revise-sources
+backup_sources:
+  - name: "Simon Willison's Blog"
+    url: "https://simonwillison.net/atom/everything/"
+    type: rss
+    priority: high
+    description: "Prolific AI/developer tools blogger"
+
+  - name: "Benedict Evans"
+    url: "https://www.ben-evans.com/benedictevans?format=rss"
+    type: rss
+    priority: medium
+    description: "Tech industry analysis"

@@ -1,0 +1,299 @@
+phases:
+  fetch-sources:
+    mode: command
+    command:
+      program: bash
+      args:
+        - "-c"
+        - |
+          set -e
+          mkdir -p data/raw-feeds data/sections output/archive
+
+          # Read source URLs from config/sources.yaml and fetch each feed
+          echo "=== Newsletter Source Fetcher ==="
+          echo "Date: $(date +%Y-%m-%d)"
+          FETCH_LOG="data/fetch-log.txt"
+          echo "Fetch started: $(date)" > "$FETCH_LOG"
+
+          FEED_COUNT=0
+          FAIL_COUNT=0
+
+          # Parse sources.yaml — extract URLs (simple grep-based parser)
+          while IFS= read -r url; do
+            [ -z "$url" ] && continue
+            FEED_COUNT=$((FEED_COUNT + 1))
+            FILENAME="data/raw-feeds/feed-${FEED_COUNT}.xml"
+            echo "Fetching: $url"
+            if curl -sL --max-time 15 -o "$FILENAME" "$url" 2>/dev/null; then
+              SIZE=$(wc -c < "$FILENAME" | tr -d ' ')
+              echo "  OK: ${SIZE} bytes → $FILENAME"
+              echo "OK|$url|${SIZE}bytes|$FILENAME" >> "$FETCH_LOG"
+            else
+              echo "  FAIL: Could not fetch $url"
+              echo "FAIL|$url" >> "$FETCH_LOG"
+              FAIL_COUNT=$((FAIL_COUNT + 1))
+            fi
+          done < <(grep 'url:' config/sources.yaml | sed 's/.*url: *"\{0,1\}//' | sed 's/"\{0,1\} *$//')
+
+          echo ""
+          echo "Fetched: $FEED_COUNT feeds ($FAIL_COUNT failed)"
+          echo "Fetch completed: $(date)" >> "$FETCH_LOG"
+          echo "Total: $FEED_COUNT fetched, $FAIL_COUNT failed" >> "$FETCH_LOG"
+
+          # Also save today's date for the edition
+          date +%Y-%m-%d > data/edition-date.txt
+      cwd_mode: project_root
+      timeout_secs: 120
+    capabilities:
+      mutates_state: true
+      writes_files: true
+
+  curate-content:
+    mode: agent
+    agent: content-curator
+    directive: |
+      Read the raw feed data from data/raw-feeds/ directory. Each file is an RSS/Atom XML feed.
+      Also read the newsletter configuration from config/newsletter.yaml to understand the
+      target topic, audience, and content preferences.
+
+      For each feed file:
+      1. Parse the XML to extract article entries (title, link, published date, description/summary)
+      2. Score each article 0.0-1.0 for relevance to the newsletter's topic
+      3. Filter out articles older than 7 days from today (read data/edition-date.txt for today's date)
+      4. Assign each passing article to a section: top-stories, deep-dives, tools-and-launches, quick-links
+
+      For the top 5 highest-scoring articles, use the fetch MCP to retrieve the full article
+      text from the URL. This gives you better content for scoring and section assignment.
+
+      Write the curated output to data/curated-articles.json with this schema:
+      {
+        "edition_date": "YYYY-MM-DD",
+        "topic_focus": "from config",
+        "articles": [
+          {
+            "title": "...",
+            "url": "...",
+            "source": "feed name",
+            "published": "YYYY-MM-DD",
+            "summary": "2-3 sentence summary",
+            "relevance_score": 0.92,
+            "section": "top-stories",
+            "verdict": "include" | "skip"
+          }
+        ],
+        "sections": ["top-stories", "deep-dives", "tools-and-launches", "quick-links"],
+        "stats": {"fetched": 0, "included": 0, "skipped": 0}
+      }
+
+      Sort articles within each section by relevance_score descending.
+    capabilities:
+      mutates_state: true
+      writes_files: true
+
+  content-review:
+    mode: agent
+    agent: content-curator
+    directive: |
+      Read data/curated-articles.json. Evaluate whether there is sufficient quality content
+      to produce a newsletter edition.
+
+      Decision rules:
+      - Count articles with verdict "include" and relevance_score >= 0.5
+      - If 5+ quality articles across at least 2 sections → verdict "proceed"
+      - If 2-4 quality articles → verdict "revise-sources" (need more content)
+      - If < 2 quality articles → verdict "skip-edition" (not enough for this cycle)
+
+      Also check section coverage:
+      - top-stories should have at least 2 articles
+      - If deep-dives has 0 articles, that's okay (can be skipped)
+      - quick-links should have at least 3 articles
+
+      Write your decision to data/content-decision.json:
+      {
+        "verdict": "proceed" | "revise-sources" | "skip-edition",
+        "reasoning": "...",
+        "quality_articles": 8,
+        "section_coverage": {"top-stories": 3, "deep-dives": 1, "tools-and-launches": 2, "quick-links": 5}
+      }
+
+      Output the decision as the final JSON line:
+      {"verdict": "proceed|revise-sources|skip-edition", "reasoning": "..."}
+    capabilities:
+      mutates_state: true
+      writes_files: true
+    decision_contract:
+      required_fields: [verdict, reasoning]
+
+  write-sections:
+    mode: agent
+    agent: section-writer
+    directive: |
+      Read the following files:
+      - data/curated-articles.json — curated and scored articles with section assignments
+      - config/newsletter.yaml — newsletter name, topic, audience, tone
+      - data/review-feedback.md — reviewer feedback (if it exists, this is a rework)
+
+      If this is a rework (review-feedback.md exists), address every issue listed before writing.
+      Only rewrite the sections mentioned in the feedback; keep unchanged sections as-is.
+
+      For each section with assigned articles, write a markdown file:
+
+      1. data/sections/top-stories.md
+         - 2-3 paragraph summaries per story (150-250 words each)
+         - Include: what happened, why it matters, what to watch
+         - Link to the source article
+         - Add brief editorial commentary
+
+      2. data/sections/deep-dives.md
+         - Pick the single most interesting/impactful article
+         - Write 400-600 words of analysis
+         - Use fetch MCP to read the full article for more depth
+         - Include context, implications, and different perspectives
+
+      3. data/sections/tools-and-launches.md
+         - 2-3 sentences per item
+         - Focus on: what it does, who it's for, why it's notable
+         - Include the URL
+
+      4. data/sections/quick-links.md
+         - One-liner per link: "- [Title](url) — Brief description"
+         - Keep each under 15 words after the title
+
+      Match the tone and style defined in config/newsletter.yaml.
+    capabilities:
+      mutates_state: true
+      writes_files: true
+
+  compose-edition:
+    mode: agent
+    agent: edition-composer
+    directive: |
+      Assemble the complete newsletter edition from individual sections.
+
+      Read:
+      - data/sections/top-stories.md
+      - data/sections/deep-dives.md (may not exist — skip if absent)
+      - data/sections/tools-and-launches.md
+      - data/sections/quick-links.md
+      - config/newsletter.yaml (name, topic, audience, tone)
+      - data/curated-articles.json (for article count and metadata)
+      - data/edition-date.txt (for today's date)
+      - templates/edition-template.md (for layout structure)
+
+      Compose the full edition:
+      1. Write a compelling intro (3-5 sentences) — reference the biggest theme, hook the reader
+      2. Arrange sections: intro → top stories → deep dive → tools & launches → quick links → outro
+      3. Add transitional sentences between sections where topics shift abruptly
+      4. Write an outro with a forward-looking thought and CTA (share/reply/subscribe)
+      5. Generate 3-5 subject lines ranked by expected open rate
+
+      Use sequential-thinking to reason about:
+      - What ordering of sections maximizes reader engagement
+      - Which subject line approaches will drive the highest open rates
+
+      Write outputs:
+      - output/edition-YYYY-MM-DD.md (complete newsletter, using date from edition-date.txt)
+      - output/subject-lines.txt (one per line, ranked best first)
+      - data/edition-metadata.json:
+        {
+          "edition_date": "YYYY-MM-DD",
+          "word_count": 0,
+          "section_count": 0,
+          "article_count": 0,
+          "link_count": 0,
+          "subject_lines": ["...", "..."]
+        }
+    capabilities:
+      mutates_state: true
+      writes_files: true
+
+  review-edition:
+    mode: agent
+    agent: edition-reviewer
+    directive: |
+      Review the complete newsletter edition. Read:
+      - The edition file in output/edition-*.md (find by glob or read output/ directory)
+      - data/curated-articles.json (source of truth for what articles should be included)
+      - data/edition-metadata.json (word count, stats)
+      - config/newsletter.yaml (tone, audience, word count targets)
+      - output/subject-lines.txt (subject line options)
+
+      Evaluate against all criteria:
+      1. COHERENCE: intro previews content accurately, sections flow logically, transitions are smooth
+      2. QUALITY: summaries are accurate, writing is engaging, no filler or fluff
+      3. COMPLETENESS: all "include" articles from curated-articles.json appear somewhere in the edition
+      4. TONE: consistent with config/newsletter.yaml voice throughout
+      5. LENGTH: within word count range from config (default: 1000-2500 words)
+      6. LINKS: every article has its source URL linked
+      7. SUBJECT LINES: compelling, not clickbait, accurately reflect content
+
+      If issues found:
+      - Write specific feedback to data/review-feedback.md
+      - Each issue: "SECTION: issue description — suggested fix"
+      - Output: {"verdict": "rework", "reasoning": "...", "issues": ["...", "..."]}
+
+      If all criteria met:
+      - Delete data/review-feedback.md if it exists (clean up from previous rework)
+      - Output: {"verdict": "publish", "reasoning": "Edition meets all quality criteria."}
+    capabilities:
+      mutates_state: true
+      writes_files: true
+    decision_contract:
+      required_fields: [verdict, reasoning]
+
+  finalize-output:
+    mode: command
+    command:
+      program: bash
+      args:
+        - "-c"
+        - |
+          set -e
+          EDITION_DATE=$(cat data/edition-date.txt)
+          EDITION_FILE="output/edition-${EDITION_DATE}.md"
+
+          if [ ! -f "$EDITION_FILE" ]; then
+            echo "ERROR: Edition file not found: $EDITION_FILE"
+            exit 1
+          fi
+
+          echo "=== Finalizing Newsletter Edition: $EDITION_DATE ==="
+
+          # Convert markdown to HTML using pandoc (if available)
+          if command -v pandoc &>/dev/null; then
+            if [ -f templates/email.html ]; then
+              pandoc "$EDITION_FILE" -o "output/edition-${EDITION_DATE}.html" \
+                --template=templates/email.html \
+                --metadata title="Newsletter Edition ${EDITION_DATE}" \
+                --standalone
+              echo "HTML generated: output/edition-${EDITION_DATE}.html"
+            else
+              pandoc "$EDITION_FILE" -o "output/edition-${EDITION_DATE}.html" --standalone
+              echo "HTML generated (no template): output/edition-${EDITION_DATE}.html"
+            fi
+          else
+            echo "WARNING: pandoc not found — skipping HTML conversion"
+          fi
+
+          # Archive the edition
+          mkdir -p output/archive
+          cp "$EDITION_FILE" "output/archive/"
+          [ -f "output/edition-${EDITION_DATE}.html" ] && cp "output/edition-${EDITION_DATE}.html" "output/archive/"
+          cp output/subject-lines.txt "output/archive/subject-lines-${EDITION_DATE}.txt" 2>/dev/null || true
+
+          echo "Archived to output/archive/"
+          echo ""
+          echo "=== Newsletter Edition Complete ==="
+          echo "Markdown: $EDITION_FILE"
+          echo "Subject lines: output/subject-lines.txt"
+          echo "Archive: output/archive/"
+
+          # Print subject line options
+          echo ""
+          echo "Subject line options:"
+          cat output/subject-lines.txt 2>/dev/null || echo "(none generated)"
+      cwd_mode: project_root
+      timeout_secs: 60
+    capabilities:
+      mutates_state: true
+      writes_files: true

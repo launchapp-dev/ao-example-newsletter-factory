@@ -1,0 +1,28 @@
+default_workflow_ref: produce-newsletter
+
+workflows:
+  - id: produce-newsletter
+    name: "Newsletter Production Pipeline"
+    description: "Fetch RSS sources, curate content, write sections, compose edition, review quality, and output a ready-to-send newsletter"
+    phases:
+      - fetch-sources
+      - curate-content
+      - content-review:
+          on_verdict:
+            proceed:
+              target: write-sections
+            revise-sources:
+              target: fetch-sources
+            skip-edition:
+              target: finalize-output
+          max_rework_attempts: 2
+      - write-sections
+      - compose-edition
+      - review-edition:
+          on_verdict:
+            rework:
+              target: write-sections
+          max_rework_attempts: 3
+      - finalize-output
+    post_success:
+      notify: "Newsletter edition produced successfully. Check output/ for the markdown and HTML edition."

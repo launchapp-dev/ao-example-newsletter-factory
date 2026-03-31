@@ -1,0 +1,92 @@
+{
+  "edition_date": "2026-03-31",
+  "topic_focus": "AI & Developer Tools",
+  "articles": [
+    {
+      "title": "New Open-Source LLM Beats GPT-4 on Coding Benchmarks",
+      "url": "https://example.com/articles/open-source-llm-coding",
+      "source": "Sample Tech Feed",
+      "published": "2026-03-31",
+      "summary": "A 70B parameter open-source model fine-tuned on code outperforms GPT-4 on HumanEval and MBPP benchmarks while running on a single A100 GPU. Weights and training code are on HuggingFace under Apache 2.0.",
+      "relevance_score": 0.97,
+      "section": "top-stories",
+      "verdict": "include"
+    },
+    {
+      "title": "Anthropic Releases Claude's Extended Thinking API",
+      "url": "https://example.com/articles/claude-extended-thinking",
+      "source": "Sample Tech Feed",
+      "published": "2026-03-30",
+      "summary": "Anthropic launched extended thinking mode for Claude, surfacing chain-of-thought reasoning as structured output. Developers can now access thinking tokens directly for debugging and transparency workflows.",
+      "relevance_score": 0.95,
+      "section": "top-stories",
+      "verdict": "include"
+    },
+    {
+      "title": "The Hidden Costs of Microservices at Small Scale",
+      "url": "https://example.com/articles/microservices-small-scale-costs",
+      "source": "Sample Tech Feed",
+      "published": "2026-03-24",
+      "summary": "A post-mortem from a 15-person startup: 6 months of velocity loss, 3x infrastructure costs, and a return to a modular monolith after a failed microservices migration. Includes a framework for deciding when microservices make sense.",
+      "relevance_score": 0.88,
+      "section": "deep-dives",
+      "verdict": "include"
+    },
+    {
+      "title": "Bun 2.0 Released with Native TypeScript Decorators and 40% Faster Bundler",
+      "url": "https://example.com/articles/bun-2-0-release",
+      "source": "Sample Tech Feed",
+      "published": "2026-03-29",
+      "summary": "Bun 2.0 ships with native TypeScript decorator support, 40% faster bundler, built-in test coverage reporting, and a new lock file format. Fully backwards-compatible with 1.x.",
+      "relevance_score": 0.82,
+      "section": "tools-and-launches",
+      "verdict": "include"
+    },
+    {
+      "title": "Vercel Acquires Tremor — React Component Library for Dashboards",
+      "url": "https://example.com/articles/vercel-acquires-tremor",
+      "source": "Sample Tech Feed",
+      "published": "2026-03-26",
+      "summary": "Vercel acquired Tremor, the open-source React component library for analytics dashboards, integrating it into the v0 component generation platform. Stays MIT-licensed.",
+      "relevance_score": 0.75,
+      "section": "tools-and-launches",
+      "verdict": "include"
+    },
+    {
+      "title": "Fly.io Launches Persistent Volumes with Point-in-Time Recovery",
+      "url": "https://example.com/articles/fly-persistent-volumes-pitr",
+      "source": "Sample Tech Feed",
+      "published": "2026-03-25",
+      "summary": "Fly.io added PITR to persistent volumes — restore to any second in the past 7 days. Priced at $0.15/GB/month for snapshot storage.",
+      "relevance_score": 0.70,
+      "section": "tools-and-launches",
+      "verdict": "include"
+    },
+    {
+      "title": "Ask HN: What's Your Current Agentic AI Stack?",
+      "url": "https://example.com/articles/ask-hn-agentic-stack",
+      "source": "Sample Tech Feed",
+      "published": "2026-03-28",
+      "summary": "Popular HN thread on production agentic AI stacks. Key themes: Claude + tool use, LangGraph for orchestration, and preference for deterministic pipelines over fully autonomous agents.",
+      "relevance_score": 0.65,
+      "section": "quick-links",
+      "verdict": "include"
+    },
+    {
+      "title": "Postgres 18 Preview: Vectorized Query Execution",
+      "url": "https://example.com/articles/postgres-18-vectorized",
+      "source": "Sample Tech Feed",
+      "published": "2026-03-27",
+      "summary": "Postgres 18 dev branch adds experimental vectorized query execution with 3-5x speedup on analytical queries. Opt-in via GUC setting, no OLTP regression.",
+      "relevance_score": 0.60,
+      "section": "quick-links",
+      "verdict": "include"
+    }
+  ],
+  "sections": ["top-stories", "deep-dives", "tools-and-launches", "quick-links"],
+  "stats": {
+    "fetched": 8,
+    "included": 8,
+    "skipped": 0
+  }
+}

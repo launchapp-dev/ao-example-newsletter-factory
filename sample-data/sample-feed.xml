@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Sample Tech Feed</title>
+    <link>https://example.com</link>
+    <description>Sample RSS feed for newsletter-factory testing</description>
+    <atom:link href="https://example.com/feed.xml" rel="self" type="application/rss+xml"/>
+    <pubDate>Mon, 31 Mar 2026 09:00:00 GMT</pubDate>
+
+    <item>
+      <title>New Open-Source LLM Beats GPT-4 on Coding Benchmarks</title>
+      <link>https://example.com/articles/open-source-llm-coding</link>
+      <description>A research team released a new 70B parameter model fine-tuned on code that outperforms GPT-4 on HumanEval and MBPP benchmarks while running on a single A100 GPU. The model weights and training code are available on HuggingFace under Apache 2.0.</description>
+      <pubDate>Mon, 31 Mar 2026 08:00:00 GMT</pubDate>
+      <guid>https://example.com/articles/open-source-llm-coding</guid>
+    </item>
+
+    <item>
+      <title>Anthropic Releases Claude's Extended Thinking API</title>
+      <link>https://example.com/articles/claude-extended-thinking</link>
+      <description>Anthropic launched an extended thinking mode for Claude that surfaces the model's chain-of-thought reasoning as a structured output. Developers can now access thinking tokens directly, enabling new debugging and transparency workflows for AI applications.</description>
+      <pubDate>Sun, 30 Mar 2026 15:30:00 GMT</pubDate>
+      <guid>https://example.com/articles/claude-extended-thinking</guid>
+    </item>
+
+    <item>
+      <title>Bun 2.0 Released with Native TypeScript Decorators and 40% Faster Bundler</title>
+      <link>https://example.com/articles/bun-2-0-release</link>
+      <description>Bun 2.0 ships with native TypeScript decorator support, a 40% faster bundler, built-in test coverage reporting, and a new package manager lock file format. The upgrade path from 1.x is fully backwards-compatible.</description>
+      <pubDate>Sat, 29 Mar 2026 10:00:00 GMT</pubDate>
+      <guid>https://example.com/articles/bun-2-0-release</guid>
+    </item>
+
+    <item>
+      <title>Ask HN: What's Your Current Agentic AI Stack?</title>
+      <link>https://example.com/articles/ask-hn-agentic-stack</link>
+      <description>A popular Hacker News thread where developers share their current production stacks for agentic AI systems. Key themes: Claude + tool use, LangGraph for orchestration, and growing preference for deterministic pipelines over fully autonomous agents.</description>
+      <pubDate>Fri, 28 Mar 2026 14:00:00 GMT</pubDate>
+      <guid>https://example.com/articles/ask-hn-agentic-stack</guid>
+    </item>
+
+    <item>
+      <title>Postgres 18 Preview: Vectorized Query Execution</title>
+      <link>https://example.com/articles/postgres-18-vectorized</link>
+      <description>The Postgres 18 development branch now includes an experimental vectorized query execution engine that delivers 3-5x speedup on analytical queries. The feature is opt-in via a GUC setting and does not affect OLTP performance.</description>
+      <pubDate>Thu, 27 Mar 2026 11:00:00 GMT</pubDate>
+      <guid>https://example.com/articles/postgres-18-vectorized</guid>
+    </item>
+
+    <item>
+      <title>Vercel Acquires Tremor — React Component Library for Dashboards</title>
+      <link>https://example.com/articles/vercel-acquires-tremor</link>
+      <description>Vercel acquired Tremor, the open-source React component library focused on analytics dashboards. The library will be integrated into the v0 component generation platform. Tremor remains open-source under MIT license.</description>
+      <pubDate>Wed, 26 Mar 2026 09:00:00 GMT</pubDate>
+      <guid>https://example.com/articles/vercel-acquires-tremor</guid>
+    </item>
+
+    <item>
+      <title>Fly.io Launches Persistent Volumes with Point-in-Time Recovery</title>
+      <link>https://example.com/articles/fly-persistent-volumes-pitr</link>
+      <description>Fly.io added point-in-time recovery to persistent volumes, enabling teams to restore volume state to any second in the past 7 days. Pricing is $0.15/GB/month for the snapshot storage.</description>
+      <pubDate>Tue, 25 Mar 2026 16:00:00 GMT</pubDate>
+      <guid>https://example.com/articles/fly-persistent-volumes-pitr</guid>
+    </item>
+
+    <item>
+      <title>The Hidden Costs of Microservices at Small Scale</title>
+      <link>https://example.com/articles/microservices-small-scale-costs</link>
+      <description>An engineer at a 15-person startup shares a post-mortem on their microservices migration: 6 months of velocity loss, 3x infrastructure costs, and eventually a return to a modular monolith. Includes specific numbers and a framework for deciding when microservices make sense.</description>
+      <pubDate>Mon, 24 Mar 2026 13:00:00 GMT</pubDate>
+      <guid>https://example.com/articles/microservices-small-scale-costs</guid>
+    </item>
+
+  </channel>
+</rss>
